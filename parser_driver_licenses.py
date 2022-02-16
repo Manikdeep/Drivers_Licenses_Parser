@@ -7,6 +7,10 @@ import sys
 import csv
 import datetime as dt
 from datetime import datetime
+import pyap
+#from uszipcode import SearchEngine
+#import pyap
+#from commonregex import CommonRegex
 
 class DriverLiecense:
 
@@ -24,6 +28,7 @@ class DriverLiecense:
         re1 = title.split("@")
         photo_id = re1[0].split("_")[1]
         date = re1[1].split("_")[0]
+        print(photo_id)
         return photo_id, date
 
     def check_zipcode(self,content):
@@ -44,8 +49,9 @@ class DriverLiecense:
         v_name = []
         content_lower = content.lower()
         words = content_lower.split(" ")
+        #print(words)
         for i,word in enumerate(words):
-            if ((word == "1" or word == "2") or (word == "FN" or word == "LN")) and i+1 <= len(words):
+            if ((word == "1" or word == "2") or (word == "FN" or word == "LN") or (word=="ln" or word=="fn")) and i+1 <= len(words):
                 v_name.append(words[i+1])
         print(v_name)
         
@@ -59,58 +65,63 @@ class DriverLiecense:
             return 1
         return 0
     
-    def validate_exp_date(self, content):
-        result  = []
-        exp_dates = []
-        content_lower = content.lower()
-        words = content_lower.split(" ")
-        for i,word in enumerate(words):
-            if word == "exp" and i+1 <= len(words):
-                if "/" in words[i+1] or "-" in words[i+1]:
-                    exp_dates.append(words[i+1])
-        print(exp_dates)
+    # def validate_exp_date(self, content):
+    #     result  = []
+    #     exp_dates = []
+    #     content_lower = content.lower()
+    #     words = content_lower.split(" ")
+    #     for i,word in enumerate(words):
+    #         if word == "exp" and i+1 <= len(words):
+    #             if "/" in words[i+1] or "-" in words[i+1]:
+    #                 exp_dates.append(words[i+1])
+    #     print(exp_dates)
 
-        for dl_date in exp_dates:
-            print(dl_date)
-            dl_date = datetime.strptime(dl_date, "%m/%d/%Y")
-            curr_date = dt.date.today()
-            if  dl_date.date() > curr_date:
-                result.append(1)
-            else:
-                result.append(0) 
-        if sum(result) > 0:
-            return 1
-        return 0
+    #     for dl_date in exp_dates:
+    #         print(dl_date)
+    #         dl_date = datetime.strptime(dl_date, "%m/%d/%Y")
+    #         curr_date = dt.date.today()
+    #         if  dl_date.date() > curr_date:
+    #             result.append(1)
+    #         else:
+    #             result.append(0) 
+    #     if sum(result) > 0:
+    #         return 1
+    #     return 0
 
     def validate_full_address(self, content):
+        
         result = []
         address = []
         content_lower = content.lower()
         words = content_lower.split(" ")
-        dl_regex_full_address = ["^\d{1,6}\040([A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,})$|^\d{1,6}\040([A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,})$|^\d{1,6}\040([A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,})$"]
+        dl_regex_full_address = pyap.parse(content, country='US')
+        print(dl_regex_full_address)
+        #[r"\d+[ ](?:[A-Za-z0-9.-]+[ ]?)+(?:Avenue|Lane|Road|Boulevard|Drive|Street|Ave|Dr|Rd|Blvd|Ln|St)\.?[ ]{(?:[A-Z][a-z.-]+[ ]?)+},[ ](?:AlabamaAlaskaArizonaArkansasCaliforniaColoradoConnecticutDelawareFloridaGeorgiaHawaiiIdahoIllinoisIndianaIowaKansasKentuckyLouisianaMaineMarylandMassachusettsMichiganMinnesotaMississippiMissouriMontanaNebraskaNevadaNew[ ]HampshireNew[ ]JerseyNew[ ]MexicoNew[ ]YorkNorth[ ]CarolinaNorth[ ]DakotaOhioOklahomaOregonPennsylvaniaRhode[ ]IslandSouth[ ]CarolinaSouth[ ]DakotaTennesseeTexasUtahVermontVirginiaWashingtonWest[ ]VirginiaWisconsinWyoming|AL|AK|AS|AZ|AR|CA|CO|CT|DE|DC|FM|FL|GA|GU|HI|ID|IL|IN|IA|KS|KY|LA|ME|MH|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|MP|OH|OK|OR|PW|PA|PR|RI|SC|SD|TN|TX|UT|VT|VI|VA|WA|WV|WI|WY)[ ]\b\d{5}(?:-\d{4})?\b"]
+        #["\s+(\d{2,5}\s+)(?![a|p]m\b)(([a-zA-Z|\s+]{1,5}){1,2})?([\s|,|.]+)?(([a-zA-Z|\s+]{1,30}){1,4})(court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)([\s|,|.|;]+)?(([a-zA-Z|\s+]{1,30}){1,2})([\s|,|.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)([\s|,|.]+)?(\s+\d{5})?([\s|,|.]+)(?:[A-Za-z0-9.-]+[ ]?)+(?:Avenue|Lane|Road|Boulevard|Drive|Street|Ave|Dr|Rd|Blvd|Ln|St)\.?[ ]{(?:[A-Z][a-z.-]+[ ]?)+},[ ](?:AlabamaAlaskaArizonaArkansasCaliforniaColoradoConnecticutDelawareFloridaGeorgiaHawaiiIdahoIllinoisIndianaIowaKansasKentuckyLouisianaMaineMarylandMassachusettsMichiganMinnesotaMississippiMissouriMontanaNebraskaNevadaNew[ ]HampshireNew[ ]JerseyNew[ ]MexicoNew[ ]YorkNorth[ ]CarolinaNorth[ ]DakotaOhioOklahomaOregonPennsylvaniaRhode[ ]IslandSouth[ ]CarolinaSouth[ ]DakotaTennesseeTexasUtahVermontVirginiaWashingtonWest[ ]VirginiaWisconsinWyoming|AL|AK|AS|AZ|AR|CA|CO|CT|DE|DC|FM|FL|GA|GU|HI|ID|IL|IN|IA|KS|KY|LA|ME|MH|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|MP|OH|OK|OR|PW|PA|PR|RI|SC|SD|TN|TX|UT|VT|VI|VA|WA|WV|WI|WY)[ ]\b\d{5}(?:-\d{4})?\b"]
+        #["^\d{1,6}\040([A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,})$|^\d{1,6}\040([A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,})$|^\d{1,6}\040([A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,}\040[A-Z]{1}[a-z]{1,})$"]
         #dl_regex_full_address = [r"\d+[ ](?:[A-Za-z0-9.-]+[ ]?)+(?:Avenue|Lane|Road|Boulevard|Drive|Street|Ave|Dr|Rd|Blvd|Ln|St)\.?[ ]{(?:[A-Z][a-z.-]+[ ]?)+},[ ](?:AlabamaAlaskaArizonaArkansasCaliforniaColoradoConnecticutDelawareFloridaGeorgiaHawaiiIdahoIllinoisIndianaIowaKansasKentuckyLouisianaMaineMarylandMassachusettsMichiganMinnesotaMississippiMissouriMontanaNebraskaNevadaNew[ ]HampshireNew[ ]JerseyNew[ ]MexicoNew[ ]YorkNorth[ ]CarolinaNorth[ ]DakotaOhioOklahomaOregonPennsylvaniaRhode[ ]IslandSouth[ ]CarolinaSouth[ ]DakotaTennesseeTexasUtahVermontVirginiaWashingtonWest[ ]VirginiaWisconsinWyoming|AL|AK|AS|AZ|AR|CA|CO|CT|DE|DC|FM|FL|GA|GU|HI|ID|IL|IN|IA|KS|KY|LA|ME|MH|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|MP|OH|OK|OR|PW|PA|PR|RI|SC|SD|TN|TX|UT|VT|VI|VA|WA|WV|WI|WY)[ ]\b\d{5}(?:-\d{4})?\b"]
-        for i,word in enumerate(words):
-            if word == dl_regex_full_address:
-                #if "/" in words[i+1] or "-" in words[i+1]:
-                address.append(words[i+1])
-        print(address)
+        # for i,word in enumerate(words):
+        #     if word == dl_regex_full_address:
+        #         #if "/" in words[i+1] or "-" in words[i+1]:
+        #         address.append(words[i+1])
+        # print(address)
         
-        for dl_address in address:
-            print(dl_address)
-            if  dl_address:
-                result.append(1)
-            else:
-                result.append(0) 
+        # for dl_address in address:
+        #     print(dl_address)
+        if  len(dl_regex_full_address)>0:
+            result.append(1)
+        else:
+            result.append(0) 
         if len(result) > 0:
             return 1
         return 0
         
-        # for r in dl_regex_full_address:
-        #     for i in re.finditer(r, content):
-        #         result.add(i.group())
-        # if len(result) > 0:
-        #     return 1
-        # return 0
+        for r in dl_regex_full_address:
+            for i in re.finditer(r, content):
+                result.add(i.group())
+        if len(result) > 0:
+            return 1
+        return 0
     
     def validate_dl_number(self, content):
         #[a-zA-Z]\d{7} CA
@@ -204,8 +215,8 @@ if __name__ == '__main__':
                 dl.victimname = valid_victim_name
                 
                 ### validate date
-                valid_date = dl.validate_exp_date(text_des)
-                dl.valid_dl = valid_date
+                #valid_date = dl.validate_exp_date(text_des)
+                #dl.valid_dl = valid_date
 
                 ##Validate full address
                 valid_full_address = dl.validate_full_address(text_des)
