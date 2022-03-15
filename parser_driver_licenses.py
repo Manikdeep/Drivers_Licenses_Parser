@@ -8,6 +8,10 @@ import csv
 import datetime as dt
 from datetime import datetime
 import pyap
+import dateutil.parser
+sys.stdin.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding='utf-8')
+
 #from uszipcode import SearchEngine
 #import pyap
 #from commonregex import CommonRegex
@@ -65,28 +69,30 @@ class DriverLiecense:
             return 1
         return 0
     
-    # def validate_exp_date(self, content):
-    #     result  = []
-    #     exp_dates = []
-    #     content_lower = content.lower()
-    #     words = content_lower.split(" ")
-    #     for i,word in enumerate(words):
-    #         if word == "exp" and i+1 <= len(words):
-    #             if "/" in words[i+1] or "-" in words[i+1]:
-    #                 exp_dates.append(words[i+1])
-    #     print(exp_dates)
+    def validate_exp_date(self, content):
+        result  = []
+        exp_dates = []
+        content_lower = content.lower()
+        words = content_lower.split(" ")
+        for i,word in enumerate(words):
+            if word.lower() == "exp" or word.lower() =='expires' and i+1 <= len(words):
+                if "/" in words[i+1] or "-" in words[i+1]:
+                    exp_dates.append(words[i+1])
+        print(exp_dates)
 
-    #     for dl_date in exp_dates:
-    #         print(dl_date)
-    #         dl_date = datetime.strptime(dl_date, "%m/%d/%Y")
-    #         curr_date = dt.date.today()
-    #         if  dl_date.date() > curr_date:
-    #             result.append(1)
-    #         else:
-    #             result.append(0) 
-    #     if sum(result) > 0:
-    #         return 1
-    #     return 0
+        for dl_date in exp_dates:
+            print(dl_date)
+            #dl_date = datetime.strptime(dl_date, "%m/%d/%Y")
+            dl_date=dateutil.parser.parse(dl_date)
+              
+            curr_date = dt.date.today()
+            if  dl_date.date() > curr_date:
+                result.append(1)
+            else:
+                result.append(0) 
+        if sum(result) > 0:
+            return 1
+        return 0
 
     def validate_full_address(self, content):
         
@@ -108,20 +114,24 @@ class DriverLiecense:
         
         # for dl_address in address:
         #     print(dl_address)
+        #print("address_list",len(dl_regex_full_address))
         if  len(dl_regex_full_address)>0:
-            result.append(1)
+            print("result",1)
+            return 1 
+            
         else:
-            result.append(0) 
-        if len(result) > 0:
-            return 1
-        return 0
+            print("result",0)
+            return 0
+        # if len(result) > 0:
+        #     return 1
+        # return 0
         
-        for r in dl_regex_full_address:
-            for i in re.finditer(r, content):
-                result.add(i.group())
-        if len(result) > 0:
-            return 1
-        return 0
+        # for r in dl_regex_full_address:
+        #     for i in re.finditer(r, content):
+        #         result.add(i.group())
+        # if len(result) > 0:
+        #     return 1
+        # return 0
     
     def validate_dl_number(self, content):
         #[a-zA-Z]\d{7} CA
@@ -148,7 +158,7 @@ class DriverLiecense:
         if len(result) > 0:
             return 1
         return 0
-
+    
     def data_assign_rowby(self, photo_id, date, victimname, zipcodes, states, valid_dl, dl_number, full_address, writer):
         num_zip = len(zipcodes)
         
@@ -212,11 +222,14 @@ if __name__ == '__main__':
 
                 ## Validate victim name
                 valid_victim_name = dl.victim_name(text_des)
-                dl.victimname = valid_victim_name
+                if(valid_victim_name):
+                    dl.victimname = valid_victim_name
+                else:
+                    dl.victimname='NA'
                 
                 ### validate date
-                #valid_date = dl.validate_exp_date(text_des)
-                #dl.valid_dl = valid_date
+                valid_date = dl.validate_exp_date(text_des)
+                dl.valid_dl = valid_date
 
                 ##Validate full address
                 valid_full_address = dl.validate_full_address(text_des)
