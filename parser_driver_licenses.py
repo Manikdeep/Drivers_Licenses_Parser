@@ -14,21 +14,6 @@ import dateutil.parser
 sys.stdin.reconfigure(encoding='utf-8')
 sys.stdout.reconfigure(encoding='utf-8')
 
-#from uszipcode import SearchEngine
-#import pyap
-#from commonregex import CommonRegex
-
-# Problems I'm seeing:
-# Name is not registering
-# Addresses are not accurate when there are multiple on the screen
-# find ending point for each card
-# fixed states
-#   names must be more than one letter long
-#   check for names line by line
-#   25906 has different countries, but multiple names
-# expiration dates are not being properly captured
-#
-
 class DriverLiecense:
 
     def __init__(self):
