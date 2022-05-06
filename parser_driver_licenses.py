@@ -14,6 +14,7 @@ import dateutil.parser
 sys.stdin.reconfigure(encoding='utf-8')
 sys.stdout.reconfigure(encoding='utf-8')
 
+# id class and DL and valid address, there is a name
 class DriverLiecense:
 
     def __init__(self):
@@ -92,8 +93,17 @@ class DriverLiecense:
                 result.append(0)
         if sum(result) > 0:
             return 1
+        else:
+            for line in text_des.splitlines():
+                new = line.split(' ')
+                for i in new:
+                    if i.isalpha():
+                        continue
+                    else:
+                        return 0
+                return 1
         return 0
-    
+
     def validate_exp_date(self, content):
         result  = []
         exp_dates = []
